@@ -39,6 +39,13 @@ spec:
           name: langfuse-secrets
           key: salt
 
+      # NextAuth secret for session encryption
+      nextauth:
+        secret:
+          secretKeyRef:
+            name: langfuse-secrets
+            key: nextauthSecret
+
       # Feature flags
       features:
         telemetryEnabled: true

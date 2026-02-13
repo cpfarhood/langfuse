@@ -14,10 +14,11 @@ NC='\033[0m' # No Color
 OUTPUT_FILE="sealedsecrets-sealed.yaml"
 rm -f "$OUTPUT_FILE"
 
-echo -e "${YELLOW}1/5${NC} Sealing langfuse-secrets (encryption key and salt)..."
+echo -e "${YELLOW}1/5${NC} Sealing langfuse-secrets (encryption key, salt, and nextauth secret)..."
 kubectl create secret generic langfuse-secrets --namespace=langfuse \
   --from-literal=encryptionKey=$(openssl rand -hex 32) \
   --from-literal=salt=$(openssl rand -base64 32) \
+  --from-literal=nextauthSecret=$(openssl rand -base64 32) \
   --dry-run=client -o yaml | kubeseal --format yaml >> "$OUTPUT_FILE"
 
 echo "---" >> "$OUTPUT_FILE"
