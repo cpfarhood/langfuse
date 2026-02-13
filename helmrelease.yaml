@@ -125,6 +125,9 @@ spec:
     # PostgreSQL - use external CloudNativePG cluster
     postgresql:
       enabled: false
+      auth:
+        # Dummy password required by chart validation even when disabled
+        password: "not-used"
 
     # External PostgreSQL connection
     # Connection details provided via secret
