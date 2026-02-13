@@ -71,22 +71,6 @@ spec:
       ingress:
         enabled: false
 
-      # S3 configuration for external Ceph S3
-      s3:
-        eventUpload:
-          enabled: true
-          bucket: "langfuse"
-          endpoint: "https://object.farh.net"
-          region: "us-east-1"
-          accessKeyId:
-            secretKeyRef:
-              name: langfuse-s3-config
-              key: access_key
-          secretAccessKey:
-            secretKeyRef:
-              name: langfuse-s3-config
-              key: secret_key
-
     # Web deployment configuration
     web:
       enabled: true
@@ -179,9 +163,23 @@ spec:
           size: 2Gi
           storageClass: ceph-block
 
-    # S3 - disabled, using external Ceph S3
+    # S3 - disabled bundled MinIO, using external Ceph S3
     s3:
       deploy: false
+      # S3 event upload configuration for external Ceph S3
+      eventUpload:
+        enabled: true
+        bucket: "langfuse"
+        endpoint: "https://object.farh.net"
+        region: "us-east-1"
+        accessKeyId:
+          secretKeyRef:
+            name: langfuse-s3-config
+            key: access_key
+        secretAccessKey:
+          secretKeyRef:
+            name: langfuse-s3-config
+            key: secret_key
 
     # Service configuration
     service:
