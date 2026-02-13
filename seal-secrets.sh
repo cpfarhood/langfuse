@@ -14,7 +14,7 @@ NC='\033[0m' # No Color
 OUTPUT_FILE="sealedsecrets-sealed.yaml"
 rm -f "$OUTPUT_FILE"
 
-echo -e "${YELLOW}1/6${NC} Sealing langfuse-secrets (encryption key and salt)..."
+echo -e "${YELLOW}1/5${NC} Sealing langfuse-secrets (encryption key and salt)..."
 kubectl create secret generic langfuse-secrets --namespace=langfuse \
   --from-literal=encryptionKey=$(openssl rand -hex 32) \
   --from-literal=salt=$(openssl rand -base64 32) \
@@ -22,7 +22,7 @@ kubectl create secret generic langfuse-secrets --namespace=langfuse \
 
 echo "---" >> "$OUTPUT_FILE"
 
-echo -e "${YELLOW}2/6${NC} Sealing langfuse-db-credentials (PostgreSQL)..."
+echo -e "${YELLOW}2/5${NC} Sealing langfuse-db-credentials (PostgreSQL)..."
 kubectl create secret generic langfuse-db-credentials --namespace=langfuse \
   --from-literal=username=langfuse \
   --from-literal=password=$(openssl rand -base64 32) \
@@ -30,29 +30,37 @@ kubectl create secret generic langfuse-db-credentials --namespace=langfuse \
 
 echo "---" >> "$OUTPUT_FILE"
 
-echo -e "${YELLOW}3/6${NC} Sealing langfuse-redis-password..."
+echo -e "${YELLOW}3/5${NC} Sealing langfuse-redis-password..."
 kubectl create secret generic langfuse-redis-password --namespace=langfuse \
   --from-literal=password=$(openssl rand -base64 32) \
   --dry-run=client -o yaml | kubeseal --format yaml >> "$OUTPUT_FILE"
 
 echo "---" >> "$OUTPUT_FILE"
 
-echo -e "${YELLOW}4/6${NC} Sealing langfuse-clickhouse-password..."
+echo -e "${YELLOW}4/5${NC} Sealing langfuse-clickhouse-password..."
 kubectl create secret generic langfuse-clickhouse-password --namespace=langfuse \
   --from-literal=password=$(openssl rand -base64 32) \
   --dry-run=client -o yaml | kubeseal --format yaml >> "$OUTPUT_FILE"
 
 echo "---" >> "$OUTPUT_FILE"
 
-echo -e "${YELLOW}5/5${NC} Sealing langfuse-minio-credentials..."
-kubectl create secret generic langfuse-minio-credentials --namespace=langfuse \
-  --from-literal=root-user=admin \
-  --from-literal=root-password=$(openssl rand -base64 32) \
-  --dry-run=client -o yaml | kubeseal --format yaml >> "$OUTPUT_FILE"
-
+echo -e "${YELLOW}5/5${NC} Sealing langfuse-s3-config (Ceph RGW credentials)..."
+echo "  NOTE: You need to provide actual Ceph S3 credentials"
+read -p "  S3 Endpoint (e.g., http://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc.cluster.local): " s3_endpoint
+read -p "  S3 Access Key: " s3_access_key
+read -sp "  S3 Secret Key: " s3_secret_key
 echo ""
-echo -e "${YELLOW}Note:${NC} PostgreSQL S3 backup credentials are auto-created by CephObjectStoreUser"
-echo "  The secret 'rook-ceph-object-user-langfuse' will be created automatically"
+read -p "  S3 Bucket Name: " s3_bucket
+read -p "  S3 Region (default: us-east-1): " s3_region
+s3_region=${s3_region:-us-east-1}
+
+kubectl create secret generic langfuse-s3-config --namespace=langfuse \
+  --from-literal=endpoint="$s3_endpoint" \
+  --from-literal=access_key="$s3_access_key" \
+  --from-literal=secret_key="$s3_secret_key" \
+  --from-literal=bucket="$s3_bucket" \
+  --from-literal=region="$s3_region" \
+  --dry-run=client -o yaml | kubeseal --format yaml >> "$OUTPUT_FILE"
 
 echo ""
 echo -e "${GREEN}✓ All secrets sealed successfully!${NC}"

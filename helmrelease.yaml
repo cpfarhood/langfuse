@@ -64,6 +64,35 @@ spec:
       ingress:
         enabled: false
 
+      # S3 configuration via environment variables
+      # All S3 values come from langfuse-s3-config secret
+      env:
+        - name: S3_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              name: langfuse-s3-config
+              key: endpoint
+        - name: S3_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: langfuse-s3-config
+              key: access_key
+        - name: S3_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: langfuse-s3-config
+              key: secret_key
+        - name: S3_BUCKET_NAME
+          valueFrom:
+            secretKeyRef:
+              name: langfuse-s3-config
+              key: bucket
+        - name: S3_REGION
+          valueFrom:
+            secretKeyRef:
+              name: langfuse-s3-config
+              key: region
+
     # Web deployment configuration
     web:
       enabled: true
@@ -102,7 +131,7 @@ spec:
       existingSecret: langfuse-db-credentials
       existingSecretPasswordKey: password
 
-    # Redis - bundled for caching (can be disabled for external Redis)
+    # Redis - bundled for caching
     redis:
       enabled: true
       architecture: standalone
@@ -154,22 +183,9 @@ spec:
           size: 2Gi
           storageClass: ceph-block
 
-    # MinIO - S3-compatible object storage
+    # MinIO - disabled, using external Ceph S3
     minio:
-      enabled: true
-      mode: standalone
-      auth:
-        existingSecret: langfuse-minio-credentials
-      persistence:
-        enabled: true
-        size: 20Gi
-        storageClass: ceph-block
-      resources:
-        requests:
-          cpu: 50m
-          memory: 128Mi
-        limits:
-          memory: 256Mi
+      enabled: false
 
     # Service configuration
     service:
