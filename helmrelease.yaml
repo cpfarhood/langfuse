@@ -194,6 +194,20 @@ spec:
           secretKeyRef:
             name: langfuse-s3-config
             key: secret_key
+      # S3 media upload configuration for external Ceph S3
+      mediaUpload:
+        enabled: true
+        bucket: "langfuse"
+        endpoint: "https://object.farh.net"
+        region: "us-east-1"
+        accessKeyId:
+          secretKeyRef:
+            name: langfuse-s3-config
+            key: access_key
+        secretAccessKey:
+          secretKeyRef:
+            name: langfuse-s3-config
+            key: secret_key
 
     # Service configuration
     service:
