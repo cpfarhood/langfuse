@@ -75,18 +75,9 @@ spec:
       s3:
         eventUpload:
           enabled: true
-          bucket:
-            secretKeyRef:
-              name: langfuse-s3-config
-              key: bucket
-          endpoint:
-            secretKeyRef:
-              name: langfuse-s3-config
-              key: endpoint
-          region:
-            secretKeyRef:
-              name: langfuse-s3-config
-              key: region
+          bucket: "langfuse"
+          endpoint: "https://object.farh.net"
+          region: "us-east-1"
           accessKeyId:
             secretKeyRef:
               name: langfuse-s3-config
