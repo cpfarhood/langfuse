@@ -49,20 +49,16 @@ spec:
       endpointURL: http://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc.cluster.local
       s3Credentials:
         accessKeyId:
-          name: langfuse-postgres-backup-s3
-          key: ACCESS_KEY_ID
+          name: rook-ceph-object-user-langfuse
+          key: AccessKey
         secretAccessKey:
-          name: langfuse-postgres-backup-s3
-          key: ACCESS_SECRET_KEY
+          name: rook-ceph-object-user-langfuse
+          key: SecretKey
       wal:
         compression: gzip
       data:
         compression: gzip
         jobs: 2
     retentionPolicy: "30d"
-
-  # Scheduled backups
-  backup:
     volumeSnapshot:
       className: ceph-block
-    retentionPolicy: "7d"

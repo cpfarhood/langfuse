@@ -44,24 +44,15 @@ kubectl create secret generic langfuse-clickhouse-password --namespace=langfuse 
 
 echo "---" >> "$OUTPUT_FILE"
 
-echo -e "${YELLOW}5/6${NC} Sealing langfuse-minio-credentials..."
+echo -e "${YELLOW}5/5${NC} Sealing langfuse-minio-credentials..."
 kubectl create secret generic langfuse-minio-credentials --namespace=langfuse \
   --from-literal=root-user=admin \
   --from-literal=root-password=$(openssl rand -base64 32) \
   --dry-run=client -o yaml | kubeseal --format yaml >> "$OUTPUT_FILE"
 
-echo "---" >> "$OUTPUT_FILE"
-
-echo -e "${YELLOW}6/6${NC} Sealing langfuse-postgres-backup-s3..."
-echo "  ${YELLOW}Note: You need to provide Ceph S3 credentials${NC}"
-read -p "  Enter Ceph ACCESS_KEY_ID: " ACCESS_KEY_ID
-read -sp "  Enter Ceph ACCESS_SECRET_KEY: " ACCESS_SECRET_KEY
 echo ""
-
-kubectl create secret generic langfuse-postgres-backup-s3 --namespace=langfuse \
-  --from-literal=ACCESS_KEY_ID="$ACCESS_KEY_ID" \
-  --from-literal=ACCESS_SECRET_KEY="$ACCESS_SECRET_KEY" \
-  --dry-run=client -o yaml | kubeseal --format yaml >> "$OUTPUT_FILE"
+echo -e "${YELLOW}Note:${NC} PostgreSQL S3 backup credentials are auto-created by CephObjectStoreUser"
+echo "  The secret 'rook-ceph-object-user-langfuse' will be created automatically"
 
 echo ""
 echo -e "${GREEN}✓ All secrets sealed successfully!${NC}"
