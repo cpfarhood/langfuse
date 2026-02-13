@@ -40,8 +40,7 @@ spec:
       memory: 1Gi
 
   monitoring:
-    enabled: true
-    podMonitorEnabled: true
+    enablePodMonitor: true
 
   backup:
     barmanObjectStore:
