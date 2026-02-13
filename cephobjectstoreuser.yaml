@@ -1,8 +1,0 @@
-apiVersion: ceph.rook.io/v1
-kind: CephObjectStoreUser
-metadata:
-  name: langfuse
-  namespace: langfuse
-spec:
-  store: ceph-objectstore
-  displayName: "Langfuse PostgreSQL Backups"
