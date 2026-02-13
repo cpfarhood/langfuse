@@ -44,15 +44,14 @@ spec:
 
   backup:
     barmanObjectStore:
-      destinationPath: s3://langfuse-postgres-backups/
-      endpointURL: http://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc.cluster.local
-      s3Credentials:
-        accessKeyId:
-          name: rook-ceph-object-user-langfuse
-          key: AccessKey
-        secretAccessKey:
-          name: rook-ceph-object-user-langfuse
-          key: SecretKey
+      destinationPath: https://farhoodliquor.blob.core.windows.net/langfuse/
+      azureCredentials:
+        storageAccount:
+          name: azure-backup
+          key: AZURE_STORAGE_ACCOUNT
+        storageKey:
+          name: azure-backup
+          key: AZURE_STORAGE_KEY
       wal:
         compression: gzip
       data:
