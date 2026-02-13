@@ -71,34 +71,30 @@ spec:
       ingress:
         enabled: false
 
-      # S3 configuration via environment variables
-      # All S3 values come from langfuse-s3-config secret
-      env:
-        - name: S3_ENDPOINT
-          valueFrom:
-            secretKeyRef:
-              name: langfuse-s3-config
-              key: endpoint
-        - name: S3_ACCESS_KEY_ID
-          valueFrom:
-            secretKeyRef:
-              name: langfuse-s3-config
-              key: access_key
-        - name: S3_SECRET_ACCESS_KEY
-          valueFrom:
-            secretKeyRef:
-              name: langfuse-s3-config
-              key: secret_key
-        - name: S3_BUCKET_NAME
-          valueFrom:
+      # S3 configuration for external Ceph S3
+      s3:
+        eventUpload:
+          enabled: true
+          bucket:
             secretKeyRef:
               name: langfuse-s3-config
               key: bucket
-        - name: S3_REGION
-          valueFrom:
+          endpoint:
+            secretKeyRef:
+              name: langfuse-s3-config
+              key: endpoint
+          region:
             secretKeyRef:
               name: langfuse-s3-config
               key: region
+          accessKeyId:
+            secretKeyRef:
+              name: langfuse-s3-config
+              key: access_key
+          secretAccessKey:
+            secretKeyRef:
+              name: langfuse-s3-config
+              key: secret_key
 
     # Web deployment configuration
     web:
