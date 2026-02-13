@@ -1,0 +1,177 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: langfuse
+  namespace: langfuse
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: langfuse
+      version: "1.0.x"
+      sourceRef:
+        kind: HelmRepository
+        name: langfuse
+        namespace: langfuse
+      interval: 12h
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    langfuse:
+      # Logging
+      logging:
+        level: info
+        format: json
+
+      # Security - encryption key and salt
+      # IMPORTANT: These must be sealed as secrets
+      encryptionKey:
+        secretKeyRef:
+          name: langfuse-secrets
+          key: encryptionKey
+
+      salt:
+        secretKeyRef:
+          name: langfuse-secrets
+          key: salt
+
+      # Feature flags
+      features:
+        telemetryEnabled: true
+        signUpDisabled: false
+        experimentalFeaturesEnabled: false
+
+      # SMTP for email notifications (optional)
+      # smtp:
+      #   connectionUrl: ""
+      #   fromAddress: ""
+
+      # Resources for web and worker
+      resources:
+        requests:
+          cpu: 100m
+          memory: 256Mi
+        limits:
+          memory: 512Mi
+
+      replicas: 2
+
+      # Ingress disabled - using Gateway API HTTPRoute instead
+      ingress:
+        enabled: false
+
+    # Web deployment configuration
+    web:
+      enabled: true
+      replicas: 2
+      resources:
+        requests:
+          cpu: 100m
+          memory: 256Mi
+        limits:
+          memory: 512Mi
+
+    # Worker deployment configuration
+    worker:
+      enabled: true
+      replicas: 1
+      resources:
+        requests:
+          cpu: 50m
+          memory: 128Mi
+        limits:
+          memory: 256Mi
+
+    # PostgreSQL - use external CloudNativePG cluster
+    postgresql:
+      enabled: false
+
+    # External PostgreSQL connection
+    # Connection details provided via secret
+    externalDatabase:
+      type: postgres
+      host: langfuse-postgres-rw.langfuse.svc.cluster.local
+      port: 5432
+      database: langfuse
+      user: langfuse
+      # Password from secret
+      existingSecret: langfuse-db-credentials
+      existingSecretPasswordKey: password
+
+    # Redis - bundled for caching (can be disabled for external Redis)
+    redis:
+      enabled: true
+      architecture: standalone
+      auth:
+        enabled: true
+        existingSecret: langfuse-redis-password
+        existingSecretPasswordKey: password
+      master:
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            memory: 128Mi
+        persistence:
+          enabled: true
+          size: 1Gi
+          storageClass: ceph-block
+
+    # ClickHouse - analytics database
+    clickhouse:
+      enabled: true
+      shards: 1
+      replicaCount: 1
+      auth:
+        existingSecret: langfuse-clickhouse-password
+        existingSecretKey: password
+      persistence:
+        enabled: true
+        size: 10Gi
+        storageClass: ceph-block
+      resources:
+        requests:
+          cpu: 100m
+          memory: 512Mi
+        limits:
+          memory: 1Gi
+      zookeeper:
+        enabled: true
+        replicaCount: 1
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 256Mi
+        persistence:
+          enabled: true
+          size: 2Gi
+          storageClass: ceph-block
+
+    # MinIO - S3-compatible object storage
+    minio:
+      enabled: true
+      mode: standalone
+      auth:
+        existingSecret: langfuse-minio-credentials
+      persistence:
+        enabled: true
+        size: 20Gi
+        storageClass: ceph-block
+      resources:
+        requests:
+          cpu: 50m
+          memory: 128Mi
+        limits:
+          memory: 256Mi
+
+    # Service configuration
+    service:
+      type: ClusterIP
+      port: 3000
