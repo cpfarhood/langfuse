@@ -124,10 +124,7 @@ spec:
 
     # PostgreSQL - use external CloudNativePG cluster
     postgresql:
-      enabled: false
-      auth:
-        # Dummy password required by chart validation even when disabled
-        password: "not-used"
+      deploy: false
 
     # External PostgreSQL connection
     # Connection details provided via secret
@@ -141,9 +138,9 @@ spec:
       existingSecret: langfuse-db-credentials
       existingSecretPasswordKey: password
 
-    # Redis - bundled for caching
+    # Redis - use bundled for caching
     redis:
-      enabled: true
+      deploy: true
       architecture: standalone
       auth:
         enabled: true
@@ -163,7 +160,7 @@ spec:
 
     # ClickHouse - analytics database
     clickhouse:
-      enabled: true
+      deploy: true
       shards: 1
       replicaCount: 1
       auth:
@@ -193,9 +190,9 @@ spec:
           size: 2Gi
           storageClass: ceph-block
 
-    # MinIO - disabled, using external Ceph S3
-    minio:
-      enabled: false
+    # S3 - disabled, using external Ceph S3
+    s3:
+      deploy: false
 
     # Service configuration
     service:
