@@ -125,6 +125,8 @@ spec:
     # PostgreSQL - use external CloudNativePG cluster
     postgresql:
       deploy: false
+      auth:
+        password: "not-used-dummy-value"
 
     # External PostgreSQL connection
     # Connection details provided via secret
